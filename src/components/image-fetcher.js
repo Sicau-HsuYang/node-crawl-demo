@@ -2,14 +2,29 @@ var needle = require('needle');
 var fs = require('fs');
 var fileManager = require('../helpers/file-manager');
 class ImageFetcher {
-    constructor(){
-        this.imgRegExp = /((http(s)?)|(ftp):)?\/\/[\w\-]+(\.[\w\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?\.((png)|(jp(e)?g)|(gif))/g
+    /**
+     * 抓取图片的约束
+     * @param {*} options 
+     * size: 1kb,
+     * ext: 'jpg', 'jpeg', 'gif', 'png'
+     */
+    constructor(options = { ext: ['jpg', 'jpeg', 'gif', 'png'] }){
+        this.options = options;
+        let matchImgs = this.options.ext.map(x => `(${x})`).join('|');
+        this.imgRegExp = new RegExp('((http(s)?)|(ftp):)?\\/\\/[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:\\/~\\+#]*[\\w\\-\\@?^=%&\\/~\\+#])?\.('+ matchImgs +')','g');
+    }
+
+    beforeFetch(length){
+        let lower_standard = this.options.minSize !== undefined ? this.options.minSize * 1024 : 100 * 1024;
+        let upper_standard = this.options.maxSize !== undefined ? this.options.maxSize * 1024 : Infinity;
+        return length >=lower_standard && upper_standard >= length;
     }
 
     async fetch(response) {
         let fetch_uris = this.readUrisFromReponse(response);
         let results = await this.doWork(fetch_uris);
-        return results;
+        results = results.unique();
+        return results
     }
 
     readUrisFromReponse(response){
@@ -29,8 +44,11 @@ class ImageFetcher {
         return results;
     }
 
+
+
     _doWork(src){
         needle('get', src).then(response => {
+            if(!this.beforeFetch(response.bytes)) return;
             response.setEncoding('binary');
             let filename = fileManager.getFileName(src);
             let save_path = fileManager.getSavePath(filename);

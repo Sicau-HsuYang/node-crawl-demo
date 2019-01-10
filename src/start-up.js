@@ -1,2 +1,5 @@
 const App = require('./core/app');
-new App('http://www.baidu.com').run();
+new App({
+    interval: 1000,
+    maxPages: 1024
+}).run('https://www.jd.com');
