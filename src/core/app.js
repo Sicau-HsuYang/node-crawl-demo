@@ -19,8 +19,11 @@ class App {
         await fileManager.dirExists(config.SAVE_PATH);
         var chiefCrawler = new CrawlSprite(url, dowork);
         let primaryLinks = await chiefCrawler.parse();
-        // let schedule = new Schedule();
-        // schedule.deepSearch(primaryLinks);
+        let schedule = new Schedule(this.options.maxPages);
+        schedule.setting({
+            entry: this.url
+        })
+        schedule.deepSearch(primaryLinks);
     }
 }
 

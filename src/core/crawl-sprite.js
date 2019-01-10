@@ -1,8 +1,10 @@
 var Crawler = require("crawler");
 class CrawlerSprite {
     constructor(url,callback, options = {}) {
-        this.uriRegExp = /((http(s)?):)?\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/g
+        this.linkRegExp = /((http(s)?):)?\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/g
+        this.uriRegExp = /<a[^>]*?href="[\w\W]*?">/g;
         this.url = url;
+        this.prefix = this.url.startsWith('https') ? 'https:' : 'http:';
         this.callback = callback;
         this.options = options;
         this.crawl = null;
@@ -39,7 +41,15 @@ class CrawlerSprite {
                     this.callback(resp.body);
                 }
                 let htmlStr = typeof resp.body === "string" ? resp.body : '';
-                nextFetchPath.push(...htmlStr.match(this.uriRegExp));
+                let aTags = htmlStr.match(this.uriRegExp)|| [];
+                nextFetchPath.push(...aTags.map(element_a => {
+                    let execResult = this.linkRegExp.exec(element_a);
+                    let this_url = Array.isArray(execResult) ? execResult[0] : null;
+                    if (this_url) {
+                        !this_url.startsWith('https') && !this_url.startsWith('http') ? this_url = this.prefix + this_url : null;
+                    }
+                    return this_url;
+                }).filter(x => x !== null));
             } else {
                 console.log(resp.statusMessage);
             }
