@@ -1,0 +1,12 @@
+#custom
+log/
+logs/
+node_modules/
+.vs/
+.idea/
+.vscode
+*.log
+*.log.*
+.eslintrc.json
+.eslintrc.js
+.prettierignore

@@ -2,15 +2,16 @@
   "name": "crawler",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "dev": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node src/index.js",
+    "test": "node test.js"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
     "crawler": "^1.2.0",
+    "dayjs": "^1.7.8",
     "needle": "^2.2.4"
   }
 }
