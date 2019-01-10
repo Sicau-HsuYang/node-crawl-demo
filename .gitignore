@@ -1,5 +1,6 @@
 #custom
 log/
+img/*
 logs/
 node_modules/
 .vs/
