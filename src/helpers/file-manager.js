@@ -15,7 +15,6 @@ class fileManager {
     }
 
     getSavePath(filename){
-        let demo_path = path.resolve(__dirname, `../../${config.SAVE_PATH}`)+filename;
         return path.resolve(__dirname, `../../${config.SAVE_PATH}`)+"/"+filename;
     }
 
