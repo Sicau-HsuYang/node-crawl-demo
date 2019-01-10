@@ -1,2 +1,4 @@
 const App = require('./core/app');
-new App().run();
+new App({
+    force: true
+}).run();

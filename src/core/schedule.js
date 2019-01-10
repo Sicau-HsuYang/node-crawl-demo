@@ -10,6 +10,7 @@ class Schedule {
     }
     async start(){
         var fetcher = new imageFetcher({
+            url: entry,
             ext: ['jpg', 'jpeg', 'png'],
             minSize: 50,
             maxSize: 1024

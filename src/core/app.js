@@ -5,6 +5,13 @@ var config = require('../config/index');
 class App {
     constructor(options = {}){
         this.options = options;
+        if (options.force){
+            this.destroyAll();
+        }
+    }
+
+    destroyAll(){
+
     }
 
     async run(url) {

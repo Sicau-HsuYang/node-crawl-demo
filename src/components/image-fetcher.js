@@ -10,6 +10,7 @@ class ImageFetcher {
      */
     constructor(options = { ext: ['jpg', 'jpeg', 'gif', 'png'] }){
         this.options = options;
+        this.prefix = this.options.url.startsWith('https') ? 'https:' : 'http:';
         let matchImgs = this.options.ext.map(x => `(${x})`).join('|');
         this.imgRegExp = new RegExp('((http(s)?)|(ftp):)?\\/\\/[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:\\/~\\+#]*[\\w\\-\\@?^=%&\\/~\\+#])?\.('+ matchImgs +')','g');
     }
@@ -47,6 +48,9 @@ class ImageFetcher {
 
 
     _doWork(src){
+        if(!src.startsWith('https') && !src.startsWith('http')) {
+            src = this.prefix + src;
+        }
         needle('get', src).then(response => {
             if(!this.beforeFetch(response.bytes)) return;
             response.setEncoding('binary');
