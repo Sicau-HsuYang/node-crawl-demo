@@ -1,16 +1,25 @@
+var imageFetcher = require('../components/image-fetcher');
 var CrawlSprite = require('../core/crawl-sprite');
+const { appSetting, entry } = require('../config/index');
 class Schedule {
-    constructor(config = {}){
-        this.config = config;
+    constructor(){
+        this.config = appSetting;
         this.$counted = 0;
         this.$visited = {};
+        this.$fetcher = null;
     }
-
-    setting(params = {}){
-        this.params = params;
-        if(this.params.entry) {
-            this.$visited[this.params.entry] = {};
-        }
+    async start(){
+        var fetcher = new imageFetcher({
+            ext: ['jpg', 'jpeg', 'png'],
+            minSize: 50,
+            maxSize: 1024
+        });
+        this.$fetcher = fetcher.fetch.bind(fetcher);
+        var chief = new CrawlSprite(entry, this.$fetcher);
+        this.$visited[entry] = chief;
+        this.$counted++;
+        let primaryLinks = await chief.parse();
+        this.deepSearch(primaryLinks);
     }
 
     async deepSearch(links){
@@ -21,11 +30,11 @@ class Schedule {
         let new_links = links.filter(x => !this.$visited[x]);
         for(var i=0;i<new_links.length;i++){
             let link_ele = new_links[i];
-            let new_crawl = new CrawlSprite(link_ele, null);
+            let new_crawl = new CrawlSprite(link_ele, this.$fetcher);
             let sub_links = await new_crawl.parse();
-            this.deepSearch(sub_links);
             this.$visited[link_ele] = new_crawl;
             this.$counted++;
+            this.deepSearch(sub_links);
         };
     }
 }

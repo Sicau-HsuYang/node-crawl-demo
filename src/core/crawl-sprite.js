@@ -1,7 +1,7 @@
 var Crawler = require("crawler");
 class CrawlerSprite {
     constructor(url,callback, options = {}) {
-        this.linkRegExp = /((http(s)?):)?\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/g
+        this.linkRegExp = /((http(s)?):)?\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?(?!(css)|(js))?/g
         this.uriRegExp = /<a[^>]*?href="[\w\W]*?">/g;
         this.url = url;
         this.prefix = this.url.startsWith('https') ? 'https:' : 'http:';
