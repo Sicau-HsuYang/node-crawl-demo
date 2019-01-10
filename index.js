@@ -73,6 +73,8 @@ var getPath = (str, filename) => {
 const SAVE_PATH = `./img-${dayjs().format('YYYYMMDD')}`;
 
 var crawlMain = new Crawler({
+    rateLimit: 1000,
+    encoding: null,
     maxConnections : 10,
     // This will be called for each crawled page
     callback: async function (error, res, done) {
@@ -104,5 +106,5 @@ var crawlMain = new Crawler({
 
 // Queue just one URL, with default callback
 crawlMain.queue({
-    uri: 'https://www.506ii.com/index/home.html'
+    uri: 'https://www.baidu.com'
 });
