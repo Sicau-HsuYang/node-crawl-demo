@@ -1,5 +1,7 @@
 # node-crawl-demo
 my demo application base on nodejs
-## guide
-npm install
-npm run dev
+## Guide
+```sh
+$ npm install
+$ npm run dev
+```
