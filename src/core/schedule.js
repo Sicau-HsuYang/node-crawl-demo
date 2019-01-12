@@ -1,22 +1,26 @@
-var imageFetcher = require('../components/image-fetcher');
-var CrawlSprite = require('../core/crawl-sprite');
-const { appSetting, entry } = require('../config/index');
+var libHost = require('../helpers/lib-provider');
+const { appSetting, entry } = libHost.config;
 class Schedule {
-    constructor(){
-        this.config = appSetting;
-        this.$counted = 0;
-        this.$visited = {};
-        this.$fetcher = null;
-    }
-    async start(){
-        var fetcher = new imageFetcher({
+    
+    get $fetcher(){
+        return new (libHost.getFetcher('image'))({
             url: entry,
             ext: ['jpg', 'jpeg', 'png'],
             minSize: 50,
             maxSize: 1024
         });
-        this.$fetcher = fetcher.fetch.bind(fetcher);
-        var chief = new CrawlSprite(entry, this.$fetcher);
+    }
+
+    constructor(){
+        this.config = appSetting;
+        this.$counted = 0;
+        this.$visited = {};
+    }
+
+
+
+    async start(){
+        var chief = new libHost.crawler(entry, this.$fetcher);
         this.$visited[entry] = chief;
         this.$counted++;
         let primaryLinks = await chief.parse();
@@ -31,7 +35,7 @@ class Schedule {
         let new_links = links.filter(x => !this.$visited[x]);
         for(var i=0;i<new_links.length;i++){
             let link_ele = new_links[i];
-            let new_crawl = new CrawlSprite(link_ele, this.$fetcher);
+            let new_crawl = new libHost.crawler(link_ele, this.$fetcher);
             let sub_links = await new_crawl.parse();
             this.$visited[link_ele] = new_crawl;
             this.$counted++;

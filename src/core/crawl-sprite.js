@@ -1,18 +1,21 @@
-var Crawler = require("crawler");
+var libHost = require('../helpers/lib-provider');
+var Crawler = libHost.nodeCrawler;
 class CrawlerSprite {
-    constructor(url,callback, options = {}) {
+    constructor(url = () => { throw new Error('url is required'); }, 
+    worker = () => { throw new Error("work is required") },
+     options = {}) {
         this.linkRegExp = /((http(s)?):)?\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?(?!(css)|(js))?/g
         this.uriRegExp = /<a[^>]*?href="[\w\W]*?">/g;
         this.url = url;
         this.prefix = this.url.startsWith('https') ? 'https:' : 'http:';
-        this.callback = callback;
+        this.$worker = worker;
         this.options = options;
-        this.crawl = null;
+        this.$crawl = null;
     }
     
-    fetch() {
+    initialize() {
         return new Promise((resolve,reject) => {
-            this.crawl = new Crawler({
+            this.$crawl = new Crawler({
                 rateLimit: this.options.rateLimit || 1000,
                 // encoding: this.options.encoding || null,
                 maxConnections: this.options.maxConnections || 10,
@@ -26,7 +29,7 @@ class CrawlerSprite {
                     done();
                 }
             });
-            this.crawl.queue({
+            this.$crawl.queue({
                 url: this.url
             });
         });
@@ -35,11 +38,9 @@ class CrawlerSprite {
     async parse() {
         let nextFetchPath = [];
         try {
-            let resp = await this.fetch();
+            let resp = await this.initialize();
             if (resp.statusCode.toString().startsWith('2') || resp.statusCode.toString().startsWith('3')) {
-                if(typeof this.callback === "function") {
-                    this.callback(resp.body);
-                }
+                this.$worker && this.$worker.fetch(resp.body);
                 let htmlStr = typeof resp.body === "string" ? resp.body : '';
                 let aTags = htmlStr.match(this.uriRegExp)|| [];
                 nextFetchPath.push(...aTags.map(element_a => {
